@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  api_rest:
+    build: ./api_rest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logs:/app/../logs
+      - ./certs:/app/../certs
+    environment:
+      - JWT_SECRET_KEY=supersecret
+    restart: always
+  udp_gateway:
+    build:
+      context: ./udp_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "6000:6000"
+    depends_on:
+      - api_rest
+    environment:
+      - JWT_TOKEN=token_simulado
+    restart: always
+  sensor_udp:
+    build:
+      context: ./udp_gateway
+      dockerfile: Dockerfile.sensor
+    depends_on:
+      - udp_gateway
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
+  sensor_mqtt:
+    build:
+      context: ./mqtt
+      dockerfile: Dockerfile.sensor
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always

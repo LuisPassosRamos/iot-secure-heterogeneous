@@ -6,7 +6,7 @@ services:
       - "5000:5000"
     volumes:
       - ./logs:/app/../logs
-      - ./certs:/app/../certs
+      - ./certs:/app/certs
     environment:
       - JWT_SECRET_KEY=supersecret
     restart: always

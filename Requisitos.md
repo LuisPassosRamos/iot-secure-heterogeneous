@@ -32,7 +32,7 @@ Você deverá desenvolver um projeto de sistema IoT simulado, que atue em um cen
 
 ##### Cenários Escolhido
 
-1\. irrigação inteligente em regiões distintas (urbanas e remotas). A arquitetura integra sensores com protocolos diferentes (MQTT, LoRaWAN via UDP).
+1\. irrigação inteligente em regiões distintas (urbanas e remotas). A arquitetura integra sensores com protocolos diferentes (MQTT simulado, LoRaWAN via UDP).
 
 
 
@@ -82,7 +82,7 @@ Pode ser realizada via:
 ###### 5\. Registro e Monitoramento
 
 * Logs de autenticação e comunicação
-* Captura de pacotes (Wireshark, logs do broker)
+* Captura de pacotes (Wireshark, logs do broker) — **apenas para UDP/REST, pois MQTT é simulado**
 * Tabelas com análise de falhas e tentativas inválidas
 
 

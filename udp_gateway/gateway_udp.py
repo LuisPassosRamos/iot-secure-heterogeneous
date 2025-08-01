@@ -6,19 +6,20 @@ import logging
 
 LOG_FILE = '../logs/comms.log'
 
+
 def get_jwt_token():
-    """Obtém o token JWT da variável de ambiente ou retorna um valor padrão."""
     return os.getenv("JWT_TOKEN", "token_simulado")
 
+
 def registrar_comunicacao(payload):
-    """Registra comunicação recebida em arquivo de log."""
     with open(LOG_FILE, 'a') as log:
         log.write(f"{payload}\n")
+
 
 def main():
     udp_ip = "0.0.0.0"
     udp_port = 6000
-    api_url = "https://api_rest:5000/sensores"  # Nome do serviço Docker para comunicação
+    api_url = "https://api_rest:5000/sensores"
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((udp_ip, udp_port))
@@ -41,6 +42,7 @@ def main():
             print(f"[UDP-Gateway] Pacote inválido recebido de {addr}: {data}")
         except Exception as exc:
             print(f"[UDP-Gateway] Erro ao processar pacote: {exc}")
+
 
 if __name__ == "__main__":
     main()

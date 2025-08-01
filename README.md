@@ -1,6 +1,7 @@
 # 🌱 Projeto IoT Seguro e Interoperável — Irrigação Inteligente Multirregional
 
-Este projeto simula uma infraestrutura IoT segura e interoperável para irrigação inteligente em regiões distintas (urbanas e remotas). A arquitetura integra sensores com protocolos diferentes (MQTT, LoRaWAN via UDP), aplicando criptografia, autenticação e registros de comunicação.
+Este projeto simula uma infraestrutura IoT segura e interoperável para irrigação inteligente em regiões distintas (urbanas e remotas).  
+**A comunicação MQTT é totalmente simulada em código Python, sem uso de broker real, senha ou configuração de Mosquitto. O sensor MQTT apenas imprime os dados simulando a publicação.**
 
 ### 1. Arquitetura Detalhada
 O projeto inclui diagrama técnico em `docs/arquitetura.png` e detalhamento da estrutura dos componentes, sensores, gateways e camadas de rede/aplicação.
@@ -9,7 +10,7 @@ O projeto inclui diagrama técnico em `docs/arquitetura.png` e detalhamento da e
 São utilizados dois protocolos distintos: MQTT (simulado para sensores urbanos) e UDP/HTTP REST (para sensores remotos e gateway). A interoperabilidade é garantida pelo gateway UDP, que converte pacotes UDP em requisições HTTP REST para a API, permitindo integração entre diferentes tecnologias. Justificativa: permite conectar sensores heterogêneos e facilitar integração futura com outros protocolos (ex: LoRaWAN, CoAP).
 
 ### 3. Segurança e Privacidade
-Todos os canais de comunicação utilizam criptografia (TLS/HTTPS). O controle de acesso é feito via JWT, exigido para envio de dados à API REST. Os sensores podem ter IDs ofuscados via hash SHA256 para anonimização. Logs de autenticação e eventos são registrados em arquivos dedicados. O sistema é projetado para evitar interceptação e falsificação de pacotes.
+Todos os canais de comunicação utilizam criptografia (TLS/HTTPS) **exceto o exemplo MQTT, que é apenas simulado**. O controle de acesso é feito via JWT, exigido para envio de dados à API REST. Os sensores podem ter IDs ofuscados via hash SHA256 para anonimização. Logs de autenticação e eventos são registrados em arquivos dedicados. O sistema é projetado para evitar interceptação e falsificação de pacotes.
 
 ### 4. Simulação Funcional / Prova de Conceito
 Todos os sensores, gateway e API REST são simulados em containers Docker, permitindo execução simultânea e testes realistas. O sensor MQTT simula publicação periódica, o sensor UDP envia dados para o gateway, e o gateway repassa para a API REST. Scripts e exemplos de execução estão incluídos.
@@ -18,7 +19,7 @@ Todos os sensores, gateway e API REST são simulados em containers Docker, permi
 Logs de autenticação e comunicação são gerados em `logs/auth.log` e `logs/comms.log`. Pacotes podem ser capturados via tcpdump (`logs/packets.pcap`). O README inclui exemplos de comandos para análise e monitoramento. Falhas e tentativas inválidas são registradas para posterior análise.
 
 
-* Simular sensores em regiões urbanas (MQTT) e remotas (LoRaWAN).
+* Simular sensores em regiões urbanas (MQTT, apenas simulação por print) e remotas (LoRaWAN).
 * Garantir interoperabilidade via bridges e APIs REST.
 * Adotar protocolos seguros com autenticação robusta (JWT).
 * Monitorar, logar e capturar tráfego de forma rastreável.
@@ -31,9 +32,9 @@ Logs de autenticação e comunicação são gerados em `logs/auth.log` e `logs/c
 | Tecnologia          | Função                                                       |
 | ------------------- | ------------------------------------------------------------ |
 | Python 3            | Desenvolvimento dos sensores, gateway UDP, API Flask/FastAPI |
-| MQTT (Simulado)     | Comunicação simulada entre sensores urbanos                 |
+| MQTT (Simulado)     | Comunicação simulada entre sensores urbanos (sem broker)     |
 | HTTP REST (Flask)   | Endpoint seguro para ingestão de dados remotos via gateway   |
-| TLS / DTLS          | Criptografia em trânsito (broker MQTT e REST API com HTTPS)  |
+| TLS / DTLS          | Criptografia em trânsito (apenas REST API com HTTPS)         |
 | JWT                 | Autenticação de sensores e gateway                           |
 | Docker              | Contêineres isolados para cada componente                    |
 | Wireshark / tcpdump | Captura e análise de pacotes                                 |
@@ -47,13 +48,13 @@ Logs de autenticação e comunicação são gerados em `logs/auth.log` e `logs/c
 iot-irrigacao/
 │
 ├── docker-compose.yml          # Orquestra todos os contêineres
-├── certs/                      # Certificados TLS
+├── certs/                      # Certificados TLS (apenas para REST)
 │   ├── ca.crt
 │   ├── server.crt / key
 │   └── client.crt / key
 │
 ├── mqtt/
-│   └── sensor_mqtt.py          # Sensor urbano com comunicação MQTT simulada
+│   └── sensor_mqtt.py          # Sensor urbano com comunicação MQTT simulada (apenas print)
 │
 ├── udp_gateway/
 │   ├── gateway_udp.py          # Gateway que recebe UDP e repassa via HTTP
@@ -92,11 +93,12 @@ iot-irrigacao/
    * Recebe pacotes UDP em JSON
    * Verifica autenticidade
    * Encaminha via POST à API REST usando token JWT
+
 3. 🌆 Sensor Urbano (MQTT Simulado)
 
    * Publica dados periódicos (temperatura, umidade)
-   * Comunicação simulada entre sensores urbanos (sem broker real)
-   * Simulação de autenticação e criptografia
+   * **Comunicação simulada entre sensores urbanos (sem broker real, apenas print no console)**
+   * Não há autenticação, senha ou criptografia real neste exemplo
 
 4. 🌄 Sensor Remoto (UDP)
 
@@ -105,7 +107,7 @@ iot-irrigacao/
 
 5. 🔐 Segurança
 
-   * TLS: todos os canais são encriptados
+   * TLS: todos os canais são encriptados **exceto o MQTT simulado**
    * JWT: gateway e sensores usam tokens válidos
    * Logs: falhas de autenticação e eventos são registrados
    * Consentimento/anônimos: IDs dos sensores podem ser ofuscados (hash SHA256)
@@ -127,23 +129,22 @@ iot-irrigacao/
    cd iot-irrigacao-segura
    ```
 
-2. Gerar certificados TLS (com script helper ou openssl manualmente)
+2. Gerar certificados TLS (veja instruções acima).
 
-   ```bash
-   ./generate_certs.sh
-   ```
+3. **Não é necessário configurar Mosquitto, senha MQTT ou arquivos de senha.**
 
-3. Subir todos os serviços:
+4. Subir todos os serviços:
 
    ```bash
    docker-compose up --build
    ```
 
-4. Visualizar logs:
+5. Visualizar logs:
 
    ```bash
    docker logs api_rest
    docker logs udp_gateway
+   docker logs sensor_mqtt
    ```
 
 ---
@@ -154,6 +155,11 @@ iot-irrigacao/
 | --------------------- | --------------------------------------------------- |
 | Desenho técnico       | docs/arquitetura.png                                |
 | Simulação funcional   | sensores + api + gateway em containers              |
+| Segurança             | JWT implementado + TLS configurado                  |
+| Logs e pacotes        | logs/auth.log, comms.log, packets.pcap              |
+| Relatório             | docs/relatório.pdf (explicações técnicas + tabelas) |
+| Códigos-fonte         | mqtt/sensor\_mqtt.py, udp\_gateway/, api\_rest/     |
+| Scripts suplementares | scripts de geração de tokens, certificados          |
 | Segurança             | JWT implementado + TLS configurado                  |
 | Logs e pacotes        | logs/auth.log, comms.log, packets.pcap              |
 | Relatório             | docs/relatório.pdf (explicações técnicas + tabelas) |
